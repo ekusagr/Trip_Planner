@@ -12,4 +12,5 @@ wheels/
 .envFile
 
 #ipynb
+notebook/
 *.ipynb
