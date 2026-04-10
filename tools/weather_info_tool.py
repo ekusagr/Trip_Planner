@@ -8,7 +8,7 @@ from utils.weather_info import WeatherForecastTool
 class WeatherInfoTool:
 
     def __init__(self):
-        load_dotenv(".envFile")
+        load_dotenv(".envFile", override=True)
         self.api_key = os.environ.get("AI_NEWS")
         self.weather_service = WeatherForecastTool(self.api_key)
         self.weather_tool_list = self._setup_tools()

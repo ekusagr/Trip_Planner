@@ -24,6 +24,7 @@ class ModelLoader(BaseModel):
 
     def model_post_init(self, __context: Any) -> None:
         self.config = ConfigLoader()
+        load_dotenv("../.envFile", override=True)
     
     class Config:
         arbitrary_types_allowed = True
@@ -33,10 +34,12 @@ class ModelLoader(BaseModel):
         Load and return the LLM model.
         """
         print("LLM loading...")
-        print(f"Loading model from provider: {self.model_provider}")
+        status=load_dotenv(".envFile", override=True)   
+        print(f"Loading model from provider: {self.model_provider}, {status}")
         if self.model_provider == "groq":
             print("Loading LLM from Groq..............")
             groq_api_key = os.getenv("GROQ_API_KEY")
+            print(f"key found for this model is {groq_api_key}")
             model_name = self.config["llm"]["groq"]["model_name"]
             llm=ChatGroq(model=model_name, api_key=groq_api_key)
         elif self.model_provider == "openai":

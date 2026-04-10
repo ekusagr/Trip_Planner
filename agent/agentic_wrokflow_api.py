@@ -1,3 +1,5 @@
+from tools.currency_conv_tool import CurrencyConverterTool
+from tools.expense_calc_tool import CalculatorTool
 from utils.model_loader import ModelLoader
 from langgraph.graph import StateGraph, MessagesState, END, START
 from langgraph.prebuilt import ToolNode, tools_condition
@@ -11,8 +13,16 @@ class GraphBuilder():
         self.llm = self.model_loader.load_llm()
         self.tools = []
         self.weather_tools = WeatherInfoTool()
-        self.tools = []
-        self.tools.extend([* self.weather_tools.weather_tool_list])
+        self.currency_conv_tools=CurrencyConverterTool()
+        self.expense_calculator_tools=CalculatorTool()
+        self.place_search_tools=PlaceSearchTool()
+        self.tools.extend([* self.weather_tools.weather_tool_list,
+                            *  self.place_search_tools.place_search_tool_list,
+                            * self.currency_conv_tools.currency_converter_tool_list,
+                            * self.expense_calculator_tools.calculator_tool_list
+                           ])
+        
+        self.llm_with_tools=self.llm.bind_tools(tools=self.tools)
 
         self.system_prompt=SYSTEM_PROMPT
         self.graph = None
@@ -20,7 +30,7 @@ class GraphBuilder():
     def agent_function(self, state:MessagesState):
         user_question=state["messages"]
         input_question=[self.system_prompt]+ user_question
-        response= self.llm.invoke(input_question)
+        response= self.llm_with_tools.invoke(input_question)
         return {"messages": [response]}
 
     def build_graph(self):
